@@ -29,7 +29,7 @@ def transform_fn_zinc250k(data):
 
 
 def get_val_ids():
-    file_path = '../data/valid_idx_zinc.json'
+    file_path = 'data/valid_idx_zinc.json'
     print('loading train/valid split information from: {}'.format(file_path))
     with open(file_path) as json_data:
         data = json.load(json_data)

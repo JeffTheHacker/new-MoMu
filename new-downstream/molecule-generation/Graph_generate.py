@@ -21,7 +21,7 @@ from rdkit import Chem, DataStructs
 from data import transform_qm9, transform_zinc250k
 from data.transform_zinc250k import zinc250_atomic_num_list, transform_fn_zinc250k
 from mflow.models.hyperparams import Hyperparameters
-from mflow.models.utils import check_validity, adj_to_smiles, check_novelty, valid_mol, construct_mol, _to_numpy_array, correct_mol,valid_mol_can_with_seg, construct_mol_with_validation, construct_mol_full #_miss
+from mflow.models.utils import check_validity, adj_to_smiles, check_novelty, valid_mol, construct_mol, _to_numpy_array, correct_mol,valid_mol_can_with_seg, construct_mol_with_validation# , # construct_mol_full #_miss
 from mflow.utils.model_utils import load_model, get_latent_vec
 from mflow.models.model import MoFlow, rescale_adj
 import mflow.utils.environment as env
@@ -145,7 +145,9 @@ def generate_mols_fix(model, atomic_num_list, temp=0.7, z_mu=None, batch_size=20
     else:
         raise ValueError("only 'torch.device' or 'int' are valid for 'device', but '%s' is "'given' % str(device))
 
-    adj, x, adjori = model.reverse(z_mu, true_adj=true_adj)
+    adj, x = model.reverse(z_mu, true_adj=true_adj)
+
+    adjori = adj.clone()
 
     x0 = x.squeeze(0)
     adj0 = adj.squeeze(0)
@@ -174,7 +176,7 @@ def MolTransfer(x, adj, atomic_num_list):
     """
     adj = adj.cpu()
     x = x.cpu()
-    mol = construct_mol_full(x, adj, atomic_num_list)
+    mol = construct_mol(x, adj, atomic_num_list)
 
     # atoms
     num_atom_features = 2   # atom type,  chirality tag
@@ -679,8 +681,9 @@ if __name__ == "__main__":
         # if name not in ['fc.weight', 'fc.bias']:
         #     param.requires_grad = False
 
-    ckpt = torch.load("littlegin=graphclinit_bert=scibert_epoch=299-step=18300.ckpt")
+    # ckpt = torch.load("littlegin=graphclinit_bert=scibert_epoch=299-step=18300.ckpt")
     # ckpt = torch.load("littlegin=graphclinit_bert=kvplm_epoch=299-step=18300.ckpt")
+    ckpt = torch.load("GIN-SciBERT-XLclp-baseline-epoch=29-step=3630.ckpt")
     
     ckpt = ckpt['state_dict']
     print(ckpt.keys())
